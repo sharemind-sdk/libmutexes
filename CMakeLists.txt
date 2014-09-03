@@ -40,8 +40,6 @@ INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/"
         FILES_MATCHING PATTERN "*.h")
 
 # Install cmake files:
-SET(SHAREMIND_COMPILERSUPPORT_INSTALL_INCLUDE_DIRS
-    "${CMAKE_INSTALL_PREFIX}/include")
 CONFIGURE_FILE(
     "${CMAKE_CURRENT_SOURCE_DIR}/SharemindLibMutexesConfig.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/SharemindLibMutexesConfig.cmake" @ONLY)
