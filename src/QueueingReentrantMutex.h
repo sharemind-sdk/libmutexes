@@ -153,6 +153,11 @@ public: /* Types: */
 
 public: /* Methods: */
 
+    QueueingReentrantMutex(QueueingReentrantMutex &&) = delete;
+    QueueingReentrantMutex(QueueingReentrantMutex const &) = delete;
+    QueueingReentrantMutex & operator=(QueueingReentrantMutex &&) = delete;
+    QueueingReentrantMutex & operator=(QueueingReentrantMutex const &) = delete;
+
     inline QueueingReentrantMutex() noexcept {}
 
     inline ~QueueingReentrantMutex() noexcept {}

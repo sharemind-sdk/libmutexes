@@ -156,6 +156,11 @@ public: /* Types: */
 
 public: /* Methods: */
 
+    QueueingMutex(QueueingMutex &&) = delete;
+    QueueingMutex(QueueingMutex const &) = delete;
+    QueueingMutex & operator=(QueueingMutex &&) = delete;
+    QueueingMutex & operator=(QueueingMutex const &) = delete;
+
     inline QueueingMutex() noexcept {
         #ifdef SHAREMIND_INSTRUCT_VALGRIND
         VALGRIND_HG_MUTEX_INIT_POST(&m_mutex, 0);

@@ -182,6 +182,11 @@ public: /* Types: */
 
 public: /* Methods: */
 
+    QueueingRwMutex(QueueingRwMutex &&) = delete;
+    QueueingRwMutex(QueueingRwMutex const &) = delete;
+    QueueingRwMutex & operator=(QueueingRwMutex &&) = delete;
+    QueueingRwMutex & operator=(QueueingRwMutex const &) = delete;
+
     #ifdef SHAREMIND_INSTRUCT_VALGRIND
     inline QueueingRwMutex() noexcept { ANNOTATE_RWLOCK_CREATE(&m_mutex); }
     #endif
