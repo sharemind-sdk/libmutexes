@@ -195,9 +195,11 @@ public: /* Methods: */
     QueueingRwMutex & operator=(QueueingRwMutex &&) = delete;
     QueueingRwMutex & operator=(QueueingRwMutex const &) = delete;
 
-    #ifdef SHAREMIND_INSTRUCT_VALGRIND
-    inline QueueingRwMutex() noexcept { ANNOTATE_RWLOCK_CREATE(&m_mutex); }
-    #endif
+    inline QueueingRwMutex() noexcept {
+        #ifdef SHAREMIND_INSTRUCT_VALGRIND
+        ANNOTATE_RWLOCK_CREATE(&m_mutex);
+        #endif
+    }
 
     inline ~QueueingRwMutex() noexcept {
         #ifdef SHAREMIND_INSTRUCT_VALGRIND
