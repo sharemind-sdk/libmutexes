@@ -43,6 +43,14 @@ public: /* Types: */
 
     public: /* Methods: */
 
+        Lock(Lock const &) = delete;
+        Lock & operator=(Lock const &) = delete;
+
+        /** \todo Implement move semantic once Intel supports it. For details,
+         *        see https://software.intel.com/en-us/forums/topic/542626 */
+        Lock(Lock &&) = delete;
+        Lock & operator=(Lock &&) = delete;
+
         inline Lock(QueueingMutex & mutex) noexcept
             : m_mutex(mutex.m_mutex)
             #ifndef SHAREMIND_INSTRUCT_VALGRIND

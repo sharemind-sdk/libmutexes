@@ -44,6 +44,14 @@ public: /* Types: */
 
     public: /* Methods: */
 
+        LockBase(LockBase const &) = delete;
+        LockBase & operator=(LockBase const &) = delete;
+
+        /** \todo Implement move semantic once Intel supports it. For details,
+         *        see https://software.intel.com/en-us/forums/topic/542626 */
+        LockBase(LockBase &&) = delete;
+        LockBase & operator=(LockBase &&) = delete;
+
         inline LockBase(QueueingRwMutex & mutex) noexcept
             : m_mutex(mutex.m_mutex)
             #ifdef SHAREMIND_INSTRUCT_VALGRIND
