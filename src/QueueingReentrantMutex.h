@@ -74,11 +74,10 @@ public: /* Types: */
             assert(!m_locked);
             const std::thread::id myId = std::this_thread::get_id();
             m_lock.lock();
-            if (m_mutex.m_locked && m_mutex.m_owner != myId) {
+            if (m_mutex.m_counter > 0u && m_mutex.m_owner != myId) {
                 m_lock.unlock();
                 return false;
             }
-            m_mutex.m_locked = true;
             m_mutex.m_owner = myId;
             ++m_mutex.m_counter;
             m_lock.unlock();
@@ -89,14 +88,12 @@ public: /* Types: */
         inline void unlock() noexcept {
             assert(m_locked);
             m_lock.lock();
-            assert(m_mutex.m_locked);
             assert(m_mutex.m_owner == std::this_thread::get_id());
             assert(m_mutex.m_counter > 0u);
-            if (--m_mutex.m_counter == 0u) {
-                m_locked = false;
+            if (--m_mutex.m_counter == 0u)
                 m_mutex.m_cond.notify_all();
-            }
             m_lock.unlock();
+            m_locked = false;
         }
 
     private: /* Methods: */
@@ -104,9 +101,8 @@ public: /* Types: */
         inline void lock__(QueueingReentrantMutex & mutex) noexcept {
             const std::thread::id myId = std::this_thread::get_id();
             m_lock.lock();
-            while (mutex.m_locked && mutex.m_owner != myId)
+            while (m_mutex.m_counter > 0u && mutex.m_owner != myId)
                 mutex.m_cond.wait(m_lock);
-            mutex.m_locked = true;
             mutex.m_owner = myId;
             ++mutex.m_counter;
             m_lock.unlock();
@@ -131,9 +127,8 @@ public: /* Types: */
         {
             const std::thread::id myId = std::this_thread::get_id();
             m_lock.lock();
-            while (mutex.m_locked && mutex.m_owner != myId)
+            while (mutex.m_counter > 0u && mutex.m_owner != myId)
                 mutex.m_cond.wait(m_lock);
-            mutex.m_locked = true;
             mutex.m_owner = myId;
             ++mutex.m_counter;
             m_lock.unlock();
@@ -141,13 +136,10 @@ public: /* Types: */
 
         inline ~Guard() noexcept {
             m_lock.lock();
-            assert(m_mutex.m_locked);
             assert(m_mutex.m_owner == std::this_thread::get_id());
             assert(m_mutex.m_counter > 0u);
-            if (--m_mutex.m_counter == 0u) {
-                m_mutex.m_locked = false;
+            if (--m_mutex.m_counter == 0u)
                 m_mutex.m_cond.notify_all();
-            }
             m_lock.unlock();
         }
 
@@ -174,7 +166,6 @@ private: /* Fields: */
 
     QueueingMutex m_mutex;
     std::condition_variable_any m_cond;
-    bool m_locked = false;
     std::thread::id m_owner;
     std::size_t m_counter = 0u;
 
