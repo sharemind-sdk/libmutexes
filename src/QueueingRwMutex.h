@@ -35,7 +35,7 @@ class QueueingRwMutex {
 
 public: /* Types: */
 
-    template <bool UNIQUE__>
+    template <bool UNIQUE_>
     class LockBase {
 
     public: /* Types: */
@@ -55,20 +55,20 @@ public: /* Types: */
         inline LockBase(QueueingRwMutex & mutex) noexcept
             : m_mutex(mutex.m_mutex)
             #ifdef SHAREMIND_INSTRUCT_VALGRIND
-            , m_isUnique(UNIQUE__)
+            , m_isUnique(UNIQUE_)
             , m_isLocked(true)
             #endif
-            , m_lock(mutex.m_mutex, UNIQUE__)
+            , m_lock(mutex.m_mutex, UNIQUE_)
         {
             #ifdef SHAREMIND_INSTRUCT_VALGRIND
-            ANNOTATE_RWLOCK_ACQUIRED(&m_mutex, UNIQUE__);
+            ANNOTATE_RWLOCK_ACQUIRED(&m_mutex, UNIQUE_);
             #endif
         }
 
         inline LockBase(QueueingRwMutex & mutex, const nolock_t) noexcept
             : m_mutex(mutex.m_mutex)
             #ifdef SHAREMIND_INSTRUCT_VALGRIND
-            , m_isUnique(UNIQUE__)
+            , m_isUnique(UNIQUE_)
             , m_isLocked(false)
             #endif
         {}
@@ -81,23 +81,23 @@ public: /* Types: */
         }
 
         inline void lock() noexcept {
-            m_lock.acquire(m_mutex, UNIQUE__);
+            m_lock.acquire(m_mutex, UNIQUE_);
             #ifdef SHAREMIND_INSTRUCT_VALGRIND
-            assert(m_isUnique == UNIQUE__);
+            assert(m_isUnique == UNIQUE_);
             assert(!m_isLocked);
             m_isLocked = true;
-            ANNOTATE_RWLOCK_ACQUIRED(&m_mutex, UNIQUE__);
+            ANNOTATE_RWLOCK_ACQUIRED(&m_mutex, UNIQUE_);
             #endif
         }
 
         inline bool try_lock() noexcept {
-            const bool r = m_lock.try_acquire(m_mutex, UNIQUE__);
+            const bool r = m_lock.try_acquire(m_mutex, UNIQUE_);
             #ifdef SHAREMIND_INSTRUCT_VALGRIND
             if (r) {
-                assert(m_isUnique == UNIQUE__);
+                assert(m_isUnique == UNIQUE_);
                 assert(!m_isLocked);
                 m_isLocked = true;
-                ANNOTATE_RWLOCK_ACQUIRED(&m_mutex, UNIQUE__);
+                ANNOTATE_RWLOCK_ACQUIRED(&m_mutex, UNIQUE_);
             }
             #endif
             return r;
@@ -106,7 +106,7 @@ public: /* Types: */
         inline void unlock() noexcept {
             #ifdef SHAREMIND_INSTRUCT_VALGRIND
             ANNOTATE_RWLOCK_RELEASED(&m_mutex, m_isUnique);
-            m_isUnique = UNIQUE__;
+            m_isUnique = UNIQUE_;
             m_isLocked = false;
             #endif
             m_lock.release();
@@ -149,19 +149,19 @@ public: /* Types: */
         #endif
         tbb::queuing_rw_mutex::scoped_lock m_lock;
 
-    }; /* template <bool UNIQUE__> class LockBase { */
+    }; /* template <bool UNIQUE_> class LockBase { */
 
     typedef LockBase<true> UniqueLock;
     typedef LockBase<false> SharedLock;
 
-    template <bool UNIQUE__>
+    template <bool UNIQUE_>
     class GuardBase {
 
     public: /* Methods: */
 
         inline GuardBase(QueueingRwMutex & mutex) noexcept
             #ifndef SHAREMIND_INSTRUCT_VALGRIND
-            : m_lock(mutex.m_mutex, UNIQUE__)
+            : m_lock(mutex.m_mutex, UNIQUE_)
             #else
             : m_lock(mutex)
             #endif
@@ -180,10 +180,10 @@ public: /* Types: */
         #ifndef SHAREMIND_INSTRUCT_VALGRIND
         tbb::queuing_rw_mutex::scoped_lock m_lock;
         #else
-        LockBase<UNIQUE__> m_lock;
+        LockBase<UNIQUE_> m_lock;
         #endif
 
-    }; /* template <bool UNIQUE__> class GuardBase { */
+    }; /* template <bool UNIQUE_> class GuardBase { */
 
     typedef GuardBase<true> UniqueGuard;
     typedef GuardBase<false> SharedGuard;

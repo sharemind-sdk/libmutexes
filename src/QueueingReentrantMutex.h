@@ -52,7 +52,7 @@ public: /* Types: */
         inline Lock(QueueingReentrantMutex & mutex) noexcept
             : m_mutex(mutex)
             , m_lock(mutex.m_mutex, QueueingMutex::Lock::nolock)
-        { lock__(mutex); }
+        { lock_(mutex); }
 
         inline Lock(QueueingReentrantMutex & mutex, const nolock_t) noexcept
             : m_mutex(mutex)
@@ -67,7 +67,7 @@ public: /* Types: */
 
         inline void lock() noexcept {
             assert(!m_locked);
-            lock__(m_mutex);
+            lock_(m_mutex);
         }
 
         inline bool try_lock() noexcept {
@@ -98,7 +98,7 @@ public: /* Types: */
 
     private: /* Methods: */
 
-        inline void lock__(QueueingReentrantMutex & mutex) noexcept {
+        inline void lock_(QueueingReentrantMutex & mutex) noexcept {
             const std::thread::id myId = std::this_thread::get_id();
             m_lock.lock();
             while (m_mutex.m_counter > 0u && mutex.m_owner != myId)
